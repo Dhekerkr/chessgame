@@ -51,10 +51,17 @@ function selectSquare(row, col) {
           (rowIndex + colIndex) % 2 === 0 ? 'light' : 'dark',
           isSelected(rowIndex, colIndex) ? 'selected' : '',
         ]"
+        :data-testid="`cell-${rowIndex}-${colIndex}`"
         type="button"
         @click="selectSquare(rowIndex, colIndex)"
       >
-        <span class="piece" v-if="cell">{{ cell.symbol }}</span>
+        <span
+          class="piece"
+          v-if="cell"
+          :data-testid="`piece-${rowIndex}-${colIndex}`"
+        >
+          {{ cell.symbol }}
+        </span>
         <span class="coords">{{ rowIndex }},{{ colIndex }}</span>
       </button>
     </div>
