@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run --reporter=html --outputFile=html/unit/index.html",
-    "test:run": "vitest run --reporter=html --outputFile=html/unit/index.html",
+    "test": "vitest run --reporter=html --outputFile=html/unit/index.html --pool=vm",
+    "test:run": "vitest run --reporter=html --outputFile=html/unit/index.html --pool=vm",
     "test:e2e": "playwright test --reporter=html --output=html/playwright"
   },
   "dependencies": {
