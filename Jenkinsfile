@@ -37,7 +37,7 @@ pipeline {
     }
     post {
         always {
-            node {
+            node('any') {
                 publishHTML([
                     allowMissing: true,
                     alwaysLinkToLastBuild: false,
