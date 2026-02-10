@@ -37,17 +37,30 @@ pipeline {
     }
     post {
         always {
-            publishHTML([
-                allowMissing: true,
-                alwaysLinkToLastBuild: false,
-                icon: '',
-                keepAll: true,
-                reportDir: 'html',
-                reportFiles: 'index.html',
-                reportName: 'VitestReport',
-                reportTitles: '',
-                useWrapperFileDirectly: true
-            ])
+            node {
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: false,
+                    icon: '',
+                    keepAll: true,
+                    reportDir: 'html/unit',
+                    reportFiles: 'index.html',
+                    reportName: 'VitestReport',
+                    reportTitles: '',
+                    useWrapperFileDirectly: true
+                ])
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: false,
+                    icon: '',
+                    keepAll: true,
+                    reportDir: 'html/playwright',
+                    reportFiles: 'index.html',
+                    reportName: 'PlaywrightReport',
+                    reportTitles: '',
+                    useWrapperFileDirectly: true
+                ])
+            }
         }
     }
 }
