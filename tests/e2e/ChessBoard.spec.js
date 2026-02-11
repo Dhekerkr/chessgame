@@ -20,13 +20,27 @@ test.describe('ChessBoard', () => {
     await expect(page.getByTestId('cell-4-0')).toContainText('\u2659');
   });
 
-  test('replaces a piece when the destination is occupied', async ({ page }) => {
+  test('rejects illegal moves', async ({ page }) => {
     await page.goto('/');
 
     await page.getByTestId('cell-7-3').click();
     await page.getByTestId('cell-0-3').click();
 
-    await expect(page.getByTestId('cell-0-3')).toContainText('\u2655');
-    await expect(page.getByTestId('cell-7-3')).not.toContainText('\u2655');
+    await expect(page.getByTestId('cell-7-3')).toContainText('\u2655');
+    await expect(page.getByTestId('cell-0-3')).toContainText('\u265B');
+  });
+
+  test('allows a legal capture sequence', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByTestId('cell-6-4').click();
+    await page.getByTestId('cell-4-4').click();
+    await page.getByTestId('cell-1-3').click();
+    await page.getByTestId('cell-3-3').click();
+    await page.getByTestId('cell-4-4').click();
+    await page.getByTestId('cell-3-3').click();
+
+    await expect(page.getByTestId('cell-3-3')).toContainText('\u2659');
+    await expect(page.getByText('white pawn (4,4) -> (3,3)')).toBeVisible();
   });
 });

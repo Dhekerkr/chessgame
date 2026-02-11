@@ -12,9 +12,9 @@ const history = computed(() => game.getHistory());
   <div class="app-shell">
     <header class="app-header">
       <div>
-        <p class="eyebrow">Free Play Chess</p>
-        <h1>Move any piece anywhere.</h1>
-        <p class="subtitle">Select a piece, pick a square, and keep a log of every move.</p>
+        <p class="eyebrow">Chess Rules Enabled</p>
+        <h1>Play legal moves only.</h1>
+        <p class="subtitle">Select a piece, then choose one of its legal destination squares.</p>
       </div>
     </header>
     <main class="app-layout">

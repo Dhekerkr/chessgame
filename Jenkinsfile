@@ -19,6 +19,32 @@ pipeline {
                 sh 'npm run build'
             }
         }
+        stage('Unit Tests') {
+            agent { docker {
+                image 'mcr.microsoft.com/playwright:v1.57.0-noble'
+                args '--network=host'
+                } 
+            }
+            steps {
+                sh 'npm install'
+                sh 'npm run test'
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: false,
+                        icon: '',
+                        keepAll: true,
+                        reportDir: 'html/unit',
+                        reportFiles: 'index.html',
+                        reportName: 'VitestReport',
+                        reportTitles: '',
+                        useWrapperFileDirectly: true
+                    ])
+                }
+            }
+        }
         
         stage('UI Tests') {
             agent { docker {
