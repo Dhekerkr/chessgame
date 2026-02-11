@@ -24,7 +24,7 @@ describe('ChessGameService', () => {
     expect(game.getPiece(9, 9)).toBeNull();
   });
 
-  it('moves a piece freely and records history', () => {
+  it('moves a piece when the move is legal and records history', () => {
     const game = new ChessGameService();
 
     const moved = game.movePiece({ row: 6, col: 0 }, { row: 4, col: 0 });
@@ -36,22 +36,44 @@ describe('ChessGameService', () => {
     expect(game.getHistory()[0]).toBe('white pawn (6,0) -> (4,0)');
   });
 
-  it('replaces a piece when the target square is occupied', () => {
+  it('prevents illegal moves', () => {
     const game = new ChessGameService();
 
-    const moved = game.movePiece({ row: 7, col: 3 }, { row: 0, col: 3 });
-
-    expect(moved).toBe(true);
-    expect(game.getPiece(7, 3)).toBeNull();
-    expect(game.getPiece(0, 3)).toMatchObject({ color: 'white', type: 'queen' });
-    expect(game.getHistory()[0]).toBe('white queen (7,3) -> (0,3)');
+    expect(game.movePiece({ row: 7, col: 3 }, { row: 0, col: 3 })).toBe(false);
+    expect(game.getPiece(7, 3)).toMatchObject({ color: 'white', type: 'queen' });
+    expect(game.getPiece(0, 3)).toMatchObject({ color: 'black', type: 'queen' });
+    expect(game.getHistory()).toHaveLength(0);
   });
 
-  it('ignores moves from empty squares or to the same square', () => {
+  it('allows legal captures', () => {
+    const game = new ChessGameService();
+
+    game.movePiece({ row: 6, col: 4 }, { row: 4, col: 4 }); // e4
+    game.movePiece({ row: 1, col: 3 }, { row: 3, col: 3 }); // d5
+
+    const moved = game.movePiece({ row: 4, col: 4 }, { row: 3, col: 3 }); // exd5
+
+    expect(moved).toBe(true);
+    expect(game.getPiece(3, 3)).toMatchObject({ color: 'white', type: 'pawn' });
+    expect(game.getHistory()).toContain('white pawn (4,4) -> (3,3)');
+  });
+
+  it('ignores moves from empty squares, same square, or wrong turn', () => {
     const game = new ChessGameService();
 
     expect(game.movePiece({ row: 4, col: 4 }, { row: 4, col: 5 })).toBe(false);
     expect(game.movePiece({ row: 7, col: 0 }, { row: 7, col: 0 })).toBe(false);
+    expect(game.movePiece({ row: 1, col: 0 }, { row: 2, col: 0 })).toBe(false); // black cannot move first
     expect(game.getHistory()).toHaveLength(0);
+  });
+
+  it('returns legal destinations for a selected piece', () => {
+    const game = new ChessGameService();
+
+    expect(game.getLegalMoves({ row: 7, col: 1 })).toEqual([
+      { row: 5, col: 0 },
+      { row: 5, col: 2 },
+    ]);
+    expect(game.getLegalMoves({ row: 7, col: 0 })).toEqual([]);
   });
 });

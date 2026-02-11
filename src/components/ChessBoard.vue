@@ -11,27 +11,53 @@ const props = defineProps({
 const selected = ref(null);
 
 const board = computed(() => props.game.board);
+const legalTargets = computed(() => {
+  if (!selected.value) {
+    return new Set();
+  }
+
+  return new Set(
+    props.game
+      .getLegalMoves(selected.value)
+      .map((position) => `${position.row}-${position.col}`),
+  );
+});
 
 function isSelected(row, col) {
   return selected.value && selected.value.row === row && selected.value.col === col;
+}
+
+function isLegalTarget(row, col) {
+  return legalTargets.value.has(`${row}-${col}`);
 }
 
 function selectSquare(row, col) {
   const piece = props.game.getPiece(row, col);
 
   if (!selected.value) {
-    if (piece) {
+    if (piece && props.game.getLegalMoves({ row, col }).length > 0) {
       selected.value = { row, col };
     }
     return;
   }
 
-  if (selected.value && piece && isSelected(row, col)) {
+  if (isSelected(row, col)) {
     selected.value = null;
     return;
   }
 
-  props.game.movePiece(selected.value, { row, col });
+  const moved = props.game.movePiece(selected.value, { row, col });
+
+  if (moved) {
+    selected.value = null;
+    return;
+  }
+
+  if (piece && props.game.getLegalMoves({ row, col }).length > 0) {
+    selected.value = { row, col };
+    return;
+  }
+
   selected.value = null;
 }
 </script>
@@ -50,6 +76,7 @@ function selectSquare(row, col) {
         :class="[
           (rowIndex + colIndex) % 2 === 0 ? 'light' : 'dark',
           isSelected(rowIndex, colIndex) ? 'selected' : '',
+          isLegalTarget(rowIndex, colIndex) ? 'legal-target' : '',
         ]"
         :data-testid="`cell-${rowIndex}-${colIndex}`"
         type="button"

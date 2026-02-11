@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    options {
+        skipDefaultCheckout(true)
+        retry(2)
+    }
     stages {
         stage('Build') {
             agent { docker {
@@ -8,6 +12,9 @@ pipeline {
                 } 
             }
             steps {
+                retry(3) {
+                    checkout scm
+                }
                 sh 'npm install'
                 sh 'npm run build'
             }
@@ -22,7 +29,23 @@ pipeline {
                 sh 'npm install'
                 sh 'npm run test'
             }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: false,
+                        icon: '',
+                        keepAll: true,
+                        reportDir: 'html/unit',
+                        reportFiles: 'index.html',
+                        reportName: 'VitestReport',
+                        reportTitles: '',
+                        useWrapperFileDirectly: true
+                    ])
+                }
+            }
         }
+        
         stage('UI Tests') {
             agent { docker {
                 image 'mcr.microsoft.com/playwright:v1.57.0-noble'
@@ -32,6 +55,21 @@ pipeline {
             steps {
                 sh 'npm install'
                 sh 'npm run test:e2e'
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: false,
+                        icon: '',
+                        keepAll: true,
+                        reportDir: 'html/playwright',
+                        reportFiles: 'index.html',
+                        reportName: 'PlaywrightReport',
+                        reportTitles: '',
+                        useWrapperFileDirectly: true
+                    ])
+                }
             }
         }
         stage('Docker') {
@@ -68,32 +106,6 @@ pipeline {
                 sh 'npm install'
                 sh 'npx netlify deploy --prod'
             }
-        }
-    }
-    post {
-        always {
-            publishHTML([
-                allowMissing: true,
-                alwaysLinkToLastBuild: false,
-                icon: '',
-                keepAll: true,
-                reportDir: 'html/unit',
-                reportFiles: 'index.html',
-                reportName: 'VitestReport',
-                reportTitles: '',
-                useWrapperFileDirectly: true
-            ])
-            publishHTML([
-                allowMissing: true,
-                alwaysLinkToLastBuild: false,
-                icon: '',
-                keepAll: true,
-                reportDir: 'html/playwright',
-                reportFiles: 'index.html',
-                reportName: 'PlaywrightReport',
-                reportTitles: '',
-                useWrapperFileDirectly: true
-            ])
         }
     }
 }
