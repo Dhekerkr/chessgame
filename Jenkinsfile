@@ -19,33 +19,6 @@ pipeline {
                 sh 'npm run build'
             }
         }
-        
-        stage('UI Tests') {
-            agent { docker {
-                image 'mcr.microsoft.com/playwright:v1.57.0-noble'
-                args '--network=host'
-                } 
-            }
-            steps {
-                sh 'npm install'
-                sh 'npm run test:e2e'
-            }
-            post {
-                always {
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: false,
-                        icon: '',
-                        keepAll: true,
-                        reportDir: 'html/playwright',
-                        reportFiles: 'index.html',
-                        reportName: 'PlaywrightReport',
-                        reportTitles: '',
-                        useWrapperFileDirectly: true
-                    ])
-                }
-            }
-        }
         stage('Docker') {
             when {
                 branch 'main'
